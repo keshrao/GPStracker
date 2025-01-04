@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun createNewLogFile() {
         Log.d("GPSLogs", "Creating new log file")
-        val folder = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "GPSLogs")
+        val folder = File(getExternalFilesDir(null), "GPSLogs") // Always use a single base path
         if (!folder.exists()) {
             folder.mkdirs()
         }
@@ -113,15 +113,17 @@ class MainActivity : AppCompatActivity() {
         logFile = File(folder, "gps_log_$timestamp.csv")
         Log.d("GPSLogs", "File path: ${logFile?.absolutePath}")
         try {
-            if (logFile?.createNewFile() == true) {
+            logFile?.createNewFile()
+            if (logFile?.length() == 0L) {
                 FileWriter(logFile, true).use {
-                    it.append("datetime,latitude,longitude\n")
+                    it.append("datetime,latitude,longitude\n") // Ensure newline character
                 }
             }
         } catch (e: IOException) {
             e.printStackTrace()
         }
     }
+
 
     private fun startLogTimer() {
         countDownTimer = object : CountDownTimer(logDuration, 1000) { // 2 hours in milliseconds
